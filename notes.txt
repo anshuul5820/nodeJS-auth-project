@@ -1,0 +1,29 @@
+different auth choices(least->most complex):
+
+- session
+- JWT
+- OAuth(in-house, SaaS)
+- Other/Ad-hoc
+
+authentication- knowing who the user is
+authorization- already know who the user is, but who has access to what resource.
+
+passport- a middleware that lets user authenticate using diff strategies. 
+we can build our own auth strategies on top of passport. 
+middleware that allows devs to create other middlewares to create strategies 
+
+HTTP headers:
+metadata about an http req
+
+related to authentication:
+
+cookie: cookie header of req.
+set-cookie header: cookie header of response
+
+both work together to form a server side session.
+
+HTTP is a stateless protocol-> it doesnt remember the activities on the website unless we make it remember in some way. 
+
+google stores user info in cookies so user doesnt need to login to google everytime he visits.
+
+the cookies that get returned from res on first call are sent to google.com in next ping. 
