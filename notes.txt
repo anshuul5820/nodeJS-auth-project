@@ -27,3 +27,27 @@ HTTP is a stateless protocol-> it doesnt remember the activities on the website 
 google stores user info in cookies so user doesnt need to login to google everytime he visits.
 
 the cookies that get returned from res on first call are sent to google.com in next ping. 
+
+
+cookie vs session: 
+cookie is stored in browser and attached to every http req
+session is stored and managed on server and is accessed using sone secret
+
+
+JWT:
+to implement jwt, can do using symmetric cryptography (create a string, store in .env use it to sign JWT; encrypt, decrypt), or public key cryptography(asymmetric cryptogrphy- has pub and priv keys associated with it, also used in cryptocurrency). 
+
+elliptic curve cryptography: 
+- "trap door fn": can get priv from pub key, not vice versa
+
+pvt key encryption can be used to create digital sigfnatures
+some document where we sign digitally
+
+reqs:
+the document must not be tampered  
+person concerned has only signed it, not anyone
+
+VV imp: 
+never put confidential data inside 'to-be digitally signed' object
+(CC, SSN, etc)
+
