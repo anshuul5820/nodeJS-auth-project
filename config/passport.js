@@ -1,53 +1,40 @@
-const passport = require('passport')
-const { validPassword } = require('../lib/passwordUtils')
-const LocalStrategy = require('passport-local').Strategy
-const connection = require('./database')
-const User = connection.models.User
+const fs = require('fs')
+const path = require('path')
+const User = require('mongoose').model('User')
+const JwtStrategy = require('passport-jwt').Strategy
 
-const customFields = {
-  usernameField: 'uname',
-  passwordField: 'pword',
+//used to extract JWT from req; usually lies in http header
+const ExtractJwt = require('passport-jwt').ExtractJwt
+
+const pathToKey = path.join(__dirname, '..', 'id_rsa_pub.pem')
+const PUB_KEY = fs.readFileSync(pathToKey, 'utf8')
+
+// TODO
+const options = {
+  //Authorization: Bearer <token>: jwtFromRequest expects this kind of header
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  //PUB_KEY is passed bcoz verification part is being handled here; issued jwt is signed with pvt key
+  secretOrKey: PUB_KEY,
+  algorithms: ['RS256'],
 }
 
-const verifyCallback = (username, password, done) => {
-  console.log('', username, password)
-
-  //done()-- pass results of auth to done()
-  User.findOne({
-    username,
-  })
+const strategy = new JwtStrategy(options, (payload, done) => {
+  //payload.sub contains _id of user
+  User.findById({ _id: payload.sub })
     .then(user => {
-      //returns 401
-      if (!user) return done(null, false)
+      //jwt is already valid here
+      //if user found, return user so user could be attached to passport obj
+      if (user) return done(null, user)
+      else return done(null, false)
 
-      const isValid = validPassword(password, user.hash, user.salt)
+      //if any jwt is generated from anywhere which is not signed using our, priv_key, auth will fail
+      //to test, configure 'register' route to include a new jwt thats signed using our priv_key
+    })
+    .catch(err => done(err, null))
+})
 
-      if (isValid) {
-        return done(null, user)
-      } else return done(null, false)
-    })
-    .catch(err => {
-      done(err)
-    })
+// TODO
+//passport obj is provided from app.js
+module.exports = passport => {
+  passport.use(strategy)
 }
-
-const strategy = new LocalStrategy(customFields, verifyCallback)
-
-passport.use(strategy)
-passport.serializeUser((user, done) => {
-  console.log('serialize user')
-
-  done(null, user.id)
-})
-
-passport.deserializeUser((userId, done) => {
-  console.log('deserialize user')
-
-  User.findById(userId)
-    .then(user => {
-      done(null, user)
-    })
-    .catch(err => done(err))
-})
-
-// TODO: passport.use();

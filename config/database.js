@@ -1,6 +1,6 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
-require('dotenv').config()
+require('dotenv').config();
 
 /**
  * -------------- DATABASE ----------------
@@ -9,26 +9,32 @@ require('dotenv').config()
 /**
  * Connect to MongoDB Server using the connection string in the `.env` file.  To implement this, place the following
  * string into the `.env` file
- *
+ * 
  * DB_STRING=mongodb://<user>:<password>@localhost:27017/database_name
- */
+ * DB_STRING_PROD=<your production database string>
+ */ 
 
-const conn = process.env.DB_STRING
+const devConnection = process.env.DB_STRING;
+const prodConnection = process.env.DB_STRING_PROD;
 
-const connection = mongoose.createConnection(conn, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+// Connect to the correct environment database
+if (process.env.NODE_ENV === 'production') {
+    mongoose.connect(prodConnection, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    });
 
-// Creates simple schema for a User.  The hash and salt are derived from the user's given password when they register
-const UserSchema = new mongoose.Schema({
-  username: String,
-  hash: String,
-  salt: String,
-  admin: Boolean,
-})
+    mongoose.connection.on('connected', () => {
+        console.log('Database connected');
+    });
+} else {
+    mongoose.connect(devConnection, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    });
 
-const User = connection.model('User', UserSchema)
+    mongoose.connection.on('connected', () => {
+        console.log('Database connected');
+    });
+}
 
-// Expose the connection
-module.exports = connection
