@@ -1,24 +1,55 @@
-import express from 'express'
+const express = require('express')
+const mongoose = require('mongoose')
+const session = require('express-session')
+var passport = require('passport')
+var crypto = require('crypto')
+var routes = require('./routes')
+const connection = require('./config/database')
 
-const app = express()
+// Package documentation - https://www.npmjs.com/package/connect-mongo
+const MongoStore = require('connect-mongo')(session)
 
-function middlware(req, res, next) {
-  console.log('middlware')
-  const errorObj = new Error('error')
-  next(errorObj)
-}
+// Need to require the entire Passport config module so app.js knows about it
+require('./config/passport')
 
-function errorHandler(err, req, res, next) {
-  if (err) {
-    res.send('<h1>error</h1>')
-  }
-}
+/**
+ * -------------- GENERAL SETUP ----------------
+ */
 
-app.use(middlware)
-app.get('/', (req, res, next) => {
-  res.send('meoww')
+// Gives us access to variables set in the .env file via `process.env.VARIABLE_NAME` syntax
+require('dotenv').config()
+
+// Create the Express application
+var app = express()
+
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+
+/**
+ * -------------- SESSION SETUP ----------------
+ */
+
+// TODO
+
+/**
+ * -------------- PASSPORT AUTHENTICATION ----------------
+ */
+
+app.use(passport.initialize())
+app.use(passport.session())
+
+/**
+ * -------------- ROUTES ----------------
+ */
+
+// Imports all of the routes from ./routes/index.js
+app.use(routes)
+
+/**
+ * -------------- SERVER ----------------
+ */
+
+// Server listens on http://localhost:3000
+app.listen(3000, () => {
+  console.log('Server running on port 3000')
 })
-
-app.use(errorHandler)
-
-app.listen(3000)
