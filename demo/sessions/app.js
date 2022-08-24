@@ -18,6 +18,7 @@ const sessionStore = new MongoStore({
   mongoUrl:
     'mongodb+srv://schuylerdare96:rrklrrklrrkl@cluster0.r1mo1.mongodb.net/tutorial_db?retryWrites=true&w=majority',
 })
+
 app.use(
   session({
     secret: 'some secret',

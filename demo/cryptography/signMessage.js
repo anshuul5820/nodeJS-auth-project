@@ -1,34 +1,37 @@
-const crypto = require('crypto')
+const crypto = require("crypto");
 
 //trapdoor fn: cant produce data from hash
-const hash = crypto.createHash('sha256')
+const hash = crypto.createHash("sha256");
 
-const fs = require('fs')
-const encrypt = require('./encrypt')
-const decrypt = require('./decrypt')
+const fs = require("fs");
+const encrypt = require("./encrypt");
+const decrypt = require("./decrypt");
 
 const myData = {
-  firstName: 'Walter',
-  lastName: 'White',
-  address: 'chai dukaan',
-}
+    firstName: "Walter",
+    lastName: "White",
+    address: "chai dukaan",
+};
 
-const myDataString = JSON.stringify(myData)
+const myDataString = JSON.stringify(myData);
 
 //sets value on hash obj, requires string
-hash.update(myDataString)
+hash.update(myDataString);
 
-const hashedData = hash.digest('hex')
+const hashedData = hash.digest("hex");
 
-const senderPrivateKey = fs.readFileSync(__dirname + '/id_rsa_priv.pem', 'utf8')
+const senderPrivateKey = fs.readFileSync(
+    __dirname + "/id_rsa_priv.pem",
+    "utf8"
+);
 
 const signedMessage = encrypt.encryptWithPrivateKey(
-  senderPrivateKey,
-  hashedData
-)
+    senderPrivateKey,
+    hashedData
+);
 
 //returns gibberish
-console.log('', signedMessage.toString())
+console.log("", signedMessage.toString());
 
 //to check for data integrity, 2 conditions:
 //which hash fn used
@@ -39,9 +42,9 @@ console.log('', signedMessage.toString())
 //this is a heavy payload to be sent over network;
 //can be sent as a lighter way: JWT
 const packageOfDataToSend = {
-  algorithm: 'sha256',
-  originalData: myData,
-  signedAndEncryptedData: signedMessage,
-}
+    algorithm: "sha256",
+    originalData: myData,
+    signedAndEncryptedData: signedMessage,
+};
 
-module.exports.packageOfDataToSend = packageOfDataToSend
+module.exports.packageOfDataToSend = packageOfDataToSend;
